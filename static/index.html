@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Registre du bot — Configuration</title>
+<style>
+  :root{
+    --bg:#12141C;
+    --panel:#191C27;
+    --panel-edge:#2B2F3F;
+    --input:#0F1119;
+    --gold:#D9A441;
+    --gold-dim:#9C7830;
+    --teal:#4FA893;
+    --parchment:#EDE6D6;
+    --muted:#8A8FA3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--parchment);
+    font-family:Georgia,'Times New Roman',serif;
+    margin:0;
+    padding:24px 16px 60px;
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+  .mono{font-family:'Courier New',ui-monospace,monospace;}
+  .label{font-family:Arial,sans-serif;letter-spacing:0.08em;text-transform:uppercase;font-size:11px;color:var(--muted);}
+
+  /* Ledger header card */
+  .ledger{
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:4px;
+    padding:22px 24px;
+    margin-bottom:28px;
+    position:relative;
+    background-image:
+      repeating-linear-gradient(transparent, transparent 27px, var(--panel-edge) 28px);
+  }
+  .ledger::before{
+    content:"";
+    position:absolute;top:0;bottom:0;left:64px;
+    width:1px;background:rgba(217,164,65,0.25);
+  }
+  .ledger-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;}
+  h1{font-size:26px;margin:0 0 4px;font-weight:400;letter-spacing:0.01em;}
+  .subtitle{font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0;}
+  .stat-row{display:flex;gap:26px;margin-top:14px;flex-wrap:wrap;}
+  .stat{font-family:Arial,sans-serif;}
+  .stat .num{font-family:'Courier New',monospace;font-size:20px;color:var(--gold);}
+  .stat .lbl{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:22px;}
+  @media(min-width:760px){.grid{grid-template-columns:1fr 1fr;}}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-left:3px solid var(--gold-dim);
+    border-radius:2px;
+    padding:20px;
+  }
+  .panel.full{grid-column:1/-1;}
+  .panel h2{
+    font-family:Arial,sans-serif;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 4px;display:flex;align-items:center;gap:8px;
+  }
+  .panel .desc{font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 16px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:5px;}
+  input[type=text], input[type=number], textarea, select{
+    width:100%;background:var(--input);border:1px solid var(--panel-edge);
+    color:var(--parchment);padding:9px 10px;font-size:13px;font-family:Arial,sans-serif;
+    border-radius:2px;
+  }
+  textarea{min-height:64px;resize:vertical;font-family:'Courier New',monospace;}
+  .hint{font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin-top:4px;}
+  .row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .toggle-line{display:flex;align-items:center;gap:8px;font-family:Arial,sans-serif;font-size:12px;color:var(--parchment);margin-bottom:14px;}
+  .toggle-line input{accent-color:var(--teal);width:15px;height:15px;}
+
+  .btn{
+    font-family:Arial,sans-serif;letter-spacing:0.04em;
+    background:var(--gold-dim);border:none;color:#12141C;
+    font-weight:700;font-size:12px;text-transform:uppercase;
+    padding:8px 16px;cursor:pointer;border-radius:2px;
+  }
+  .btn:hover{background:var(--gold);}
+  .btn.secondary{background:transparent;border:1px solid var(--panel-edge);color:var(--muted);}
+  .btn.small{padding:5px 10px;font-size:11px;}
+
+  .rr-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .rr-row input{flex:1;}
+  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;}
+
+  .io-row{display:flex;gap:8px;margin-top:24px;flex-wrap:wrap;}
+  .footer-note{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-top:10px;}
+  input:focus, textarea:focus, select:focus, button:focus{outline:2px solid var(--gold);outline-offset:1px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="ledger">
+    <div class="ledger-top">
+      <div>
+        <h1>Registre du bot</h1>
+        <p class="subtitle">Configuration — bienvenue, rôles, banque &amp; messages automatiques</p>
+      </div>
+      <span class="mono" id="savedLine" style="font-size:11px;color:var(--muted);">Non connecté</span>
+    </div>
+    <div class="field" style="max-width:320px;margin-top:10px;">
+      <label>Clé API du bot (DASHBOARD_API_KEY)</label>
+      <input type="text" id="apiKey" placeholder="Colle ici la clé configurée sur Railway">
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="num" id="statRR">0</div><div class="lbl">Rôles réaction</div></div>
+      <div class="stat"><div class="num" id="statAM">0</div><div class="lbl">Messages auto</div></div>
+      <div class="stat"><div class="num" id="statCoin">🪙 0</div><div class="lbl">Solde de départ</div></div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- Bienvenue -->
+    <div class="panel">
+      <h2>Message de bienvenue</h2>
+      <p class="desc">Envoyé quand un membre rejoint. Variables : {user}, {server}, {membercount}</p>
+      <div class="toggle-line"><input type="checkbox" id="welcomeEnabled"> Activer</div>
+      <div class="field">
+        <label>Salon</label>
+        <input type="text" id="welcomeChannel" placeholder="#bienvenue">
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea id="welcomeMessage" placeholder="Bienvenue {user} sur {server} ! Tu es notre {membercount}ᵉ membre."></textarea>
+      </div>
+    </div>
+
+    <!-- Au revoir -->
+    <div class="panel">
+      <h2>Message d'au revoir</h2>
+      <p class="desc">Envoyé quand un membre quitte. Variables : {user}, {server}</p>
+      <div class="toggle-line"><input type="checkbox" id="leaveEnabled"> Activer</div>
+      <div class="field">
+        <label>Salon</label>
+        <input type="text" id="leaveChannel" placeholder="#bienvenue">
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea id="leaveMessage" placeholder="{user} a quitté {server}. À bientôt !"></textarea>
+      </div>
+    </div>
+
+    <!-- Rôle automatique -->
+    <div class="panel">
+      <h2>Rôle automatique</h2>
+      <p class="desc">Attribué automatiquement à chaque nouveau membre.</p>
+      <div class="toggle-line"><input type="checkbox" id="autoroleEnabled"> Activer</div>
+      <div class="field">
+        <label>Nom du rôle</label>
+        <input type="text" id="autoroleName" placeholder="Membre">
+      </div>
+    </div>
+
+    <!-- Banque -->
+    <div class="panel">
+      <h2>Banque</h2>
+      <p class="desc">Système d'économie virtuelle du serveur.</p>
+      <div class="toggle-line"><input type="checkbox" id="bankEnabled"> Activer</div>
+      <div class="row-2">
+        <div class="field">
+          <label>Nom de la monnaie</label>
+          <input type="text" id="bankCurrency" placeholder="Crédits">
+        </div>
+        <div class="field">
+          <label>Solde de départ</label>
+          <input type="number" id="bankStart" placeholder="100">
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Récompense quotidienne</label>
+          <input type="number" id="bankDaily" placeholder="50">
+        </div>
+        <div class="field">
+          <label>Récompense par message</label>
+          <input type="number" id="bankPerMsg" placeholder="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Rôle réaction -->
+    <div class="panel full">
+      <h2>Rôles réaction</h2>
+      <p class="desc">Un membre ajoute une réaction sur un message et reçoit le rôle correspondant.</p>
+      <div class="field">
+        <label>Salon du message de rôles</label>
+        <input type="text" id="rrChannel" placeholder="#choix-de-rôle">
+      </div>
+      <div id="rrList"></div>
+      <div class="rr-row">
+        <input type="text" id="rrEmoji" placeholder="Emoji (ex: 🎮)" style="max-width:140px;">
+        <input type="text" id="rrRole" placeholder="Nom du rôle">
+        <button class="btn small" onclick="addReactionRole()">+ Ajouter</button>
+      </div>
+    </div>
+
+    <!-- Message automatique -->
+    <div class="panel full">
+      <h2>Messages automatiques</h2>
+      <p class="desc">Messages envoyés à intervalle régulier dans un salon.</p>
+      <div id="amList"></div>
+      <div class="row-2" style="grid-template-columns:1fr 1fr 100px 100px;display:grid;gap:8px;align-items:end;">
+        <div class="field" style="margin-bottom:0;">
+          <label>Salon</label>
+          <input type="text" id="amChannel" placeholder="#annonces">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Message</label>
+          <input type="text" id="amText" placeholder="Contenu du message">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Intervalle (h)</label>
+          <input type="number" id="amInterval" placeholder="24">
+        </div>
+        <button class="btn small" onclick="addAutoMessage()" style="height:36px;">+ Ajouter</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="io-row">
+    <button class="btn" onclick="saveState(true)">Enregistrer la configuration</button>
+    <button class="btn secondary" onclick="exportConfig()">Exporter (JSON)</button>
+    <button class="btn secondary" onclick="document.getElementById('importFile').click()">Importer</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importConfig(event)">
+  </div>
+  <p class="footer-note">💾 Sauvegarde locale (localStorage) dans ce navigateur. Utilise l'export/import pour transférer la config vers ton bot ou la partager.</p>
+</div>
+
+<script>
+let state = {
+  welcome: {enabled:false, channel:"", message:""},
+  leave: {enabled:false, channel:"", message:""},
+  autorole: {enabled:false, name:""},
+  bank: {enabled:false, currency:"Crédits", start:100, daily:50, perMsg:1},
+  reactionRoles: {channel:"", pairs:[]},
+  autoMessages: [],
+};
+
+const API_BASE = ""; // même origine que le site (servi par le bot lui-même)
+
+function getApiKey(){
+  const key = document.getElementById("apiKey").value.trim();
+  if(key) localStorage.setItem("dashboardApiKey", key);
+  return key;
+}
+
+async function loadState(){
+  const savedKey = localStorage.getItem("dashboardApiKey");
+  if(savedKey) document.getElementById("apiKey").value = savedKey;
+  try{
+    const res = await fetch(API_BASE + "/api/config");
+    if(res.ok){
+      const remote = await res.json();
+      state = {...state, ...remote};
+      document.getElementById("savedLine").textContent = "Connecté au bot";
+    }else{
+      document.getElementById("savedLine").textContent = "Bot injoignable";
+    }
+  }catch(e){
+    document.getElementById("savedLine").textContent = "Bot injoignable";
+  }
+}
+
+async function saveState(showFeedback){
+  state.welcome = {
+    enabled: document.getElementById("welcomeEnabled").checked,
+    channel: document.getElementById("welcomeChannel").value,
+    message: document.getElementById("welcomeMessage").value,
+  };
+  state.leave = {
+    enabled: document.getElementById("leaveEnabled").checked,
+    channel: document.getElementById("leaveChannel").value,
+    message: document.getElementById("leaveMessage").value,
+  };
+  state.autorole = {
+    enabled: document.getElementById("autoroleEnabled").checked,
+    name: document.getElementById("autoroleName").value,
+  };
+  state.bank = {
+    enabled: document.getElementById("bankEnabled").checked,
+    currency: document.getElementById("bankCurrency").value || "Crédits",
+    start: Number(document.getElementById("bankStart").value) || 0,
+    daily: Number(document.getElementById("bankDaily").value) || 0,
+    perMsg: Number(document.getElementById("bankPerMsg").value) || 0,
+  };
+  state.reactionRoles.channel = document.getElementById("rrChannel").value;
+
+  const key = getApiKey();
+  try{
+    const res = await fetch(API_BASE + "/api/config", {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "X-API-Key": key},
+      body: JSON.stringify(state),
+    });
+    if(res.ok){
+      document.getElementById("savedLine").textContent = "Appliqué au bot " + new Date().toLocaleTimeString("fr-FR");
+    }else if(res.status === 401){
+      document.getElementById("savedLine").textContent = "Clé API incorrecte";
+    }else{
+      document.getElementById("savedLine").textContent = "Échec de l'envoi au bot";
+    }
+  }catch(e){
+    document.getElementById("savedLine").textContent = "Bot injoignable";
+  }
+  renderStats();
+}
+
+function fillForm(){
+  document.getElementById("welcomeEnabled").checked = state.welcome.enabled;
+  document.getElementById("welcomeChannel").value = state.welcome.channel;
+  document.getElementById("welcomeMessage").value = state.welcome.message;
+
+  document.getElementById("leaveEnabled").checked = state.leave.enabled;
+  document.getElementById("leaveChannel").value = state.leave.channel;
+  document.getElementById("leaveMessage").value = state.leave.message;
+
+  document.getElementById("autoroleEnabled").checked = state.autorole.enabled;
+  document.getElementById("autoroleName").value = state.autorole.name;
+
+  document.getElementById("bankEnabled").checked = state.bank.enabled;
+  document.getElementById("bankCurrency").value = state.bank.currency;
+  document.getElementById("bankStart").value = state.bank.start;
+  document.getElementById("bankDaily").value = state.bank.daily;
+  document.getElementById("bankPerMsg").value = state.bank.perMsg;
+
+  document.getElementById("rrChannel").value = state.reactionRoles.channel;
+
+  renderReactionRoles();
+  renderAutoMessages();
+  renderStats();
+}
+
+function renderReactionRoles(){
+  const list = document.getElementById("rrList");
+  list.innerHTML = "";
+  state.reactionRoles.pairs.forEach((p, i)=>{
+    const row = document.createElement("div");
+    row.className = "rr-row";
+    row.innerHTML = `
+      <span class="mono" style="min-width:34px;">${p.emoji}</span>
+      <span style="flex:1;font-family:Arial,sans-serif;font-size:13px;">${p.role}</span>
+      <button class="del-btn" onclick="removeReactionRole(${i})">🗑</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function addReactionRole(){
+  const emoji = document.getElementById("rrEmoji").value.trim();
+  const role = document.getElementById("rrRole").value.trim();
+  if(!emoji || !role) return;
+  state.reactionRoles.pairs.push({emoji, role});
+  document.getElementById("rrEmoji").value = "";
+  document.getElementById("rrRole").value = "";
+  saveState(); renderReactionRoles();
+}
+function removeReactionRole(i){
+  state.reactionRoles.pairs.splice(i,1);
+  saveState(); renderReactionRoles();
+}
+
+function renderAutoMessages(){
+  const list = document.getElementById("amList");
+  list.innerHTML = "";
+  state.autoMessages.forEach((m, i)=>{
+    const row = document.createElement("div");
+    row.className = "rr-row";
+    row.innerHTML = `
+      <span class="mono" style="min-width:90px;">${m.channel}</span>
+      <span style="flex:1;font-family:Arial,sans-serif;font-size:13px;">${m.text}</span>
+      <span class="mono" style="min-width:50px;">${m.interval}h</span>
+      <button class="del-btn" onclick="removeAutoMessage(${i})">🗑</button>
+    `;
+    list.appendChild(row);
+  });
+}
+function addAutoMessage(){
+  const channel = document.getElementById("amChannel").value.trim();
+  const text = document.getElementById("amText").value.trim();
+  const interval = Number(document.getElementById("amInterval").value) || 24;
+  if(!channel || !text) return;
+  state.autoMessages.push({channel, text, interval});
+  document.getElementById("amChannel").value = "";
+  document.getElementById("amText").value = "";
+  document.getElementById("amInterval").value = "";
+  saveState(); renderAutoMessages();
+}
+function removeAutoMessage(i){
+  state.autoMessages.splice(i,1);
+  saveState(); renderAutoMessages();
+}
+
+function renderStats(){
+  document.getElementById("statRR").textContent = state.reactionRoles.pairs.length;
+  document.getElementById("statAM").textContent = state.autoMessages.length;
+  document.getElementById("statCoin").textContent = "🪙 " + (state.bank.start || 0);
+}
+
+function exportConfig(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "bot-config.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importConfig(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      state = {...state, ...parsed};
+      fillForm();
+      saveState();
+    }catch(err){ alert("Fichier de config invalide."); }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+loadState().then(fillForm);
+</script>
+</body>
+</html>
