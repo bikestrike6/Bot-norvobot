@@ -1,0 +1,3 @@
+discord.py>=2.3,<3
+fastapi>=0.110,<1
+uvicorn[standart]>=0.29,<1
